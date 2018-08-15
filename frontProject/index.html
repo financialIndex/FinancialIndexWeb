@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <title>Document</title>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <!-- 引入组件库 -->
+  <script src="./dateformat.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+
+<body>
+  <div id="app">
+
+    <el-container>
+      <el-aside width="200px">
+        <el-row class="tac">
+          <el-col :span="24">
+            <el-menu default-active="2" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+              <el-submenu index="1">
+                <template slot="title">
+                  <i class="el-icon-location"></i>
+                  <span>系统检索</span>
+                </template>
+                <el-menu-item-group>
+
+                  <el-menu-item index="1-1">区块链</el-menu-item>
+                  <el-menu-item index="1-2">金融科技</el-menu-item>
+                </el-menu-item-group>
+
+                <el-menu-item index="1-3">人工智能</el-menu-item>
+                </el-menu-item-group>
+                <template slot="title"></template>
+                <el-menu-item index="1-4">物联网</el-menu-item>
+              </el-submenu>
+              <el-menu-item index="2">
+                <i class="el-icon-menu"></i>
+                <span slot="title">自定义检索</span>
+              </el-menu-item>
+              <el-menu-item index="3">
+                <i class="el-icon-document"></i>
+                <span slot="title">我的收藏</span>
+              </el-menu-item>
+              <el-menu-item index="4">
+                <i class="el-icon-setting"></i>
+                <span slot="title">设置</span>
+              </el-menu-item>
+            </el-menu>
+          </el-col>
+        </el-row>
+      </el-aside>
+      <el-container>
+        <el-header>
+          <el-menu class="el-menu-demo" mode="horizontal" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+            <el-menu-item index="1">实时检索</el-menu-item>
+            <el-submenu index="2">
+              <template slot="title">统计分析</template>
+              <el-menu-item index="2-1">事情发展趋势</el-menu-item>
+              <el-menu-item index="2-2">事件列表</el-menu-item>
+              <el-menu-item index="2-3"> 图表解读</el-menu-item>
+              <el-submenu index="2-4">
+                <template slot="title">选项4</template>
+                <el-menu-item index="2-4-1">选项1</el-menu-item>
+                <el-menu-item index="2-4-2">选项2</el-menu-item>
+                <el-menu-item index="2-4-3">选项3</el-menu-item>
+              </el-submenu>
+            </el-submenu>
+            <el-menu-item index="3">分析报告</el-menu-item>
+            <el-menu-item index="5">设置</el-menu-item>
+          </el-menu>
+        </el-header>
+        <el-main style="flex:none;">
+          <el-container>
+            <el-header>
+              <el-row gutter="20">
+                <el-col :span="10">
+                  <el-date-picker v-model="datePickerData" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+                  </el-date-picker>
+                </el-col>
+                <el-col :span="6">
+                  <el-input v-model="searchKey" placeholder="请输入匹配关键字" rows="1"></el-input>
+                </el-col>
+                <el-col :span="3">
+                  <el-button icon="el-icon-search" circle @click.native='change'></el-button>
+                </el-col>
+                <el-col :span="3">
+                    <el-button icon="el-icon-document" circle @click.native='outputWord'></el-button>
+                </el-col>
+              </el-row>
+            </el-header>
+            <el-main>
+              <el-table ref="singleTable" :data="tableData" style="width: 100%;padding:0 20px;" @selection-change="handleSelectionChange"
+                tooltip-effect="dark" stripe="true">
+                <el-table-column type="selection" width="55">
+                </el-table-column>
+                <el-table-column type="expand">
+                  <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                      <el-form-item label="文章标题">
+                        <span>{{ props.row.title }}</span>
+                      </el-form-item>
+                      <el-form-item label="原文链接">
+                        <span>
+                          <a :href=props.row.url>{{ props.row.url }}</a>
+                        </span>
+                      </el-form-item>
+                      <el-form-item label="信息来源">
+                        <span>{{ props.row.net_name }}</span>
+                      </el-form-item>
+                      <el-form-item label="消息热度">
+                        <span>{{ props.row.hot_degree }}</span>
+                      </el-form-item>
+                      <el-form-item label="关键字">
+                        <span>{{ props.row.keyword }}</span>
+                      </el-form-item>
+                      <el-form-item label="文章日期">
+                        <span>{{ props.row.ent_time }}</span>
+                      </el-form-item>
+                      <el-form-item label="摘要">
+                        <span>{{ props.row.digest }}</span>
+                      </el-form-item>
+                      <el-form-item label="原文">
+                        <span>{{ props.row.content }}</span>
+                      </el-form-item>
+                    </el-form>
+                  </template>
+                </el-table-column>
+                <el-table-column label="文章摘要" prop="title" show-overflow-tooltip="true" width="600">
+                </el-table-column>
+                <el-table-column label="信息来源" align="center" prop="net_name" width="100" sortable @sort-method="sort">
+                </el-table-column>
+                <el-table-column label="热度" align="center" prop="hot_degree" width="100" sortable @sort-method="sort">
+                </el-table-column>
+                <el-table-column label="文章日期" align="center" prop="ent_time" width="120" sortable @sort-method="sort">
+                </el-table-column>
+              </el-table>
+              <el-pagination :page-size="15" :pager-count="11" layout="prev, pager, next" :total="500" :current-page="currentPage" @current-change='pageChange'
+                style="padding:2px 20px;">
+              </el-pagination>
+            </el-main>
+          </el-container>
+        </el-main>
+
+      </el-container>
+    </el-container>
+  </div>
+  <style>
+    .demo-table-expand {
+      font-size: 0;
+    }
+
+    .demo-table-expand label {
+      width: 90px;
+      color: #99a9bf;
+    }
+
+    .demo-table-expand .el-form-item {
+      margin-right: 0;
+      margin-bottom: 0;
+      width: 100%;
+    }
+
+    .el-tooltip__popper {
+      width: 40%;
+    }
+  </style>
+
+  <script>
+    var app = new Vue({
+      el: '#app',
+      mounted: function mounted() {
+        this.getDataFromBack();
+        this.pageChange(this.currentPage);
+      },
+      methods: {
+        change: function (num) {
+          var id;
+
+          this.startData = dateFormat(this.datePickerData[0], 'isoDate');
+          this.endDate = dateFormat(this.datePickerData[1], 'isoDate');
+          this.fromId = 0;
+          this.currentPage = 1;
+
+          this.getDataFromBack();
+          this.pageChange(this.currentPage);
+        },
+        pageChange: function (num) {
+          this.currentPage = num;
+          var fromId = (this.currentPage - 1) * this.pageSize;
+          var endId = this.currentPage * this.pageSize;
+          this.tableData = [];
+          for (; fromId < endId; fromId++) {
+            if (this.requestData[fromId]) {
+              this.tableData.push(this.requestData[fromId]);
+            }
+          }
+        },
+        sort(a, b) {
+          consle.log(a);
+          consle.log(b);
+        },
+        getDataFromBack: function () {
+          axios.get(
+              `http://127.0.0.1:3000/?id=${this.fromId}&sday=${this.startData}&eday=${this.endDate}&keyword=${this.searchKey}`
+            )
+            .then(function (response) {
+              this.requestData = response.data;
+            }.bind(this));
+        },
+        handleSelectionChange(val) {
+          this.multipleSelection = val;
+        },
+        getSelectedIds() {
+          let ids = []
+          this.multipleSelection.map((item) => {
+            ids.push(item.id)
+          })
+          return ids;
+        },
+        outputWord: function () {
+          var ids = this.getSelectedIds();
+          if (ids.length == 0) {
+            alert("没有内容可导！");
+            return;
+          }
+          try {
+            var oWD = new ActiveXObject("Word.Application");
+          } catch (e) {
+            alert("无法调用Office对象，请确保您的机器已安装了Office并已将本系统的站点名加入到IE的信任站点列表中！");
+            return;
+          }
+          var oDC = oWD.Documents.Add("", 0, 1);
+          var oRange = oDC.Range(0, 1);
+          var sel = document.body.createTextRange();
+          sel.moveToElementText(tab); //tab 为导出数据所在的表格ID 
+          sel.select();
+          
+          sel.execCommand("Copy");
+          oRange.Paste();
+          oWD.ActiveDocument.ActiveWindow.View.Type = 3 //设定显示为页面视图状态 
+          oWD.Application.Visible = true;
+        }
+      },
+      data: function () {
+        return {
+          searchKey: '',
+          tableData: [],
+          requestData: [],
+          startData: '0000-01-01',
+          endDate: '9999-12-31',
+          datePickerData: '',
+          numbersperpage: 50,
+          searchKey: '',
+          currentPage: 1,
+          fromId: 0,
+          pageSize: 15,
+          multipleSelection: [],
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: "{a} <br/>{b}: {c} ({d}%)",
+        position: function (p) { //其中p为当前鼠标的位置
+          return [p[0] + 10, p[1] - 10];
+        },
+        extraCssText: 'width:160px;height:40px;background:red;'
+
+      }
+    })
+  </script>
+</body>
+
+</html>
